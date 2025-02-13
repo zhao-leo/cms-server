@@ -63,11 +63,11 @@ pub async fn find_article(
     //! Find an article by the given type
     let mut conn = database.pool.get_conn().unwrap();
     let query = match find_type {
-        FindType::Title => format!("SELECT * FROM articles WHERE title = '{}'", find),
+        FindType::Title => format!("SELECT * FROM articles WHERE title LIKE '%{}%'", find),
         FindType::Source => format!("SELECT * FROM articles WHERE source = '{}'", find),
         FindType::Category => format!("SELECT * FROM articles WHERE category = '{}'", find),
         FindType::Author => format!("SELECT * FROM articles WHERE author = '{}'", find),
-        FindType::Tags => format!("SELECT * FROM articles WHERE tags = '{}'", find),
+        FindType::Tags => format!("SELECT * FROM articles WHERE FIND_IN_SET('{}', tags)", find),
         FindType::Origin => format!("SELECT * FROM articles WHERE origin = '{}'", find),
     };
     let articles: Vec<String> = conn.query_map(

@@ -22,105 +22,111 @@ pub async fn search_article_handler(
     let database = &service.database;
     match search["type"].as_str() {
         Some("title") => {
-            match database
+            let res = database
                 .find_article(FindType::Title, search["content"].as_str().unwrap())
-                .await
-            {
-                Ok(article) => Json(SearchResponse {
-                    search: article,
-                    result: true,
-                    msg: "Article found".to_string(),
-                }),
-                Err(_) => Json(SearchResponse {
-                    search: vec![],
+                .await.unwrap();
+            if res.is_empty() {
+                return Json(SearchResponse {
+                    search: res,
                     result: false,
                     msg: "Article not found".to_string(),
-                }),
+                });
+            } else {
+                return Json(SearchResponse {
+                    search: res,
+                    result: true,
+                    msg: "Article found".to_string(),
+                });
             }
         }
         Some("source") => {
-            match database
+            let res = database
                 .find_article(FindType::Source, search["content"].as_str().unwrap())
-                .await
-            {
-                Ok(article) => Json(SearchResponse {
-                    search: article,
-                    result: true,
-                    msg: "Article found".to_string(),
-                }),
-                Err(_) => Json(SearchResponse {
-                    search: vec![],
+                .await.unwrap();
+            if res.is_empty() {
+                return Json(SearchResponse {
+                    search: res,
                     result: false,
                     msg: "Article not found".to_string(),
-                }),
+                });
+            } else {
+                return Json(SearchResponse {
+                    search: res,
+                    result: true,
+                    msg: "Article found".to_string(),
+                });
             }
         }
         Some("category") => {
-            match database
+            let res = database
                 .find_article(FindType::Category, search["content"].as_str().unwrap())
-                .await
-            {
-                Ok(article) => Json(SearchResponse {
-                    search: article,
-                    result: true,
-                    msg: "Article found".to_string(),
-                }),
-                Err(_) => Json(SearchResponse {
-                    search: vec![],
+                .await.unwrap();
+            if res.is_empty() {
+                return Json(SearchResponse {
+                    search: res,
                     result: false,
                     msg: "Article not found".to_string(),
-                }),
+                });
+            } else {
+                return Json(SearchResponse {
+                    search: res,
+                    result: true,
+                    msg: "Article found".to_string(),
+                });
             }
         }
         Some("author") => {
-            match database
+            let res = database
                 .find_article(FindType::Author, search["content"].as_str().unwrap())
-                .await
-            {
-                Ok(article) => Json(SearchResponse {
-                    search: article,
-                    result: true,
-                    msg: "Article found".to_string(),
-                }),
-                Err(_) => Json(SearchResponse {
-                    search: vec![],
+                .await.unwrap();
+            if res.is_empty() {
+                return Json(SearchResponse {
+                    search: res,
                     result: false,
                     msg: "Article not found".to_string(),
-                }),
+                });
+            } else {
+                return Json(SearchResponse {
+                    search: res,
+                    result: true,
+                    msg: "Article found".to_string(),
+                });
             }
         }
         Some("tags") => {
-            match database
+            let res = database
                 .find_article(FindType::Tags, search["content"].as_str().unwrap())
-                .await
-            {
-                Ok(article) => Json(SearchResponse {
-                    search: article,
-                    result: true,
-                    msg: "Article found".to_string(),
-                }),
-                Err(_) => Json(SearchResponse {
-                    search: vec![],
+                .await.unwrap();
+            if res.is_empty() {
+                return Json(SearchResponse {
+                    search: res,
                     result: false,
                     msg: "Article not found".to_string(),
-                }),
+                });
+            } else {
+                return Json(SearchResponse {
+                    search: res,
+                    result: true,
+                    msg: "Article found".to_string(),
+                });
             }
         }
         Some("origin") => {
-            match database
+            let res = database
                 .find_article(FindType::Origin, search["content"].as_str().unwrap())
-                .await
-            {
-                Ok(article) => Json(SearchResponse {
-                    search: article,
-                    result: true,
-                    msg: "Article found".to_string(),
-                }),
-                Err(_) => Json(SearchResponse {
-                    search: vec![],
+                .await.unwrap();
+            if res.is_empty() {
+                return Json(SearchResponse {
+                    search: res,
                     result: false,
                     msg: "Article not found".to_string(),
-                }),
+                });
+            } else {
+                return Json(SearchResponse {
+                    search: res,
+                    result: true,
+                    msg: "Article found".to_string(),
+                });
             }
         }
         _ => Json(SearchResponse {

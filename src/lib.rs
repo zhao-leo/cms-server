@@ -7,7 +7,7 @@ pub use service::Service;
 
 use axum::{
     http::HeaderMap,
-    routing::{get, post},
+    routing::{get, post,put,delete},
     Json, Router,
 };
 use std::sync::Arc;
@@ -56,7 +56,7 @@ fn register_register(router: Router, path: &str, service: Arc<Service>) -> Route
 fn register_modify(router: Router, path: &str, service: Arc<Service>) -> Router {
     router.route(
         path,
-        post(move |headers: HeaderMap, Json(payload)| {
+        put(move |headers: HeaderMap, Json(payload)| {
             let service = service.clone();
             async move { service.modify_handler(headers, Json(payload)).await }
         }),
@@ -76,7 +76,7 @@ fn register_create_article(router: Router, path: &str, service: Arc<Service>) ->
 fn register_delete_article(router: Router, path: &str, service: Arc<Service>) -> Router {
     router.route(
         path,
-        post(move |headers: HeaderMap, Json(payload)| {
+        delete(move |headers: HeaderMap, Json(payload)| {
             let service = service.clone();
             async move { service.delete_article_handler(headers, Json(payload)).await }
         }),
@@ -86,7 +86,7 @@ fn register_delete_article(router: Router, path: &str, service: Arc<Service>) ->
 fn register_modify_article(router: Router, path: &str, service: Arc<Service>) -> Router {
     router.route(
         path,
-        post(move |headers: HeaderMap, Json(payload)| {
+        put(move |headers: HeaderMap, Json(payload)| {
             let service = service.clone();
             async move { service.modify_article_handler(headers, Json(payload)).await }
         }),

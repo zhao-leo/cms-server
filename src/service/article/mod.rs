@@ -26,7 +26,6 @@ pub struct CreateResponse {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DeleteArticle {
     uuid: String,
-    msg: String,
 }
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DeleteResponse {

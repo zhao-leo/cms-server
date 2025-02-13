@@ -115,8 +115,8 @@ pub async fn put_user(
         }
     }
     let query = format!(
-        "INSERT INTO users (username, password, admin) VALUES ('{}', '{}', {})",
-        username, password_md5, admin
+        "UPDATE users SET password='{}', admin={} WHERE username='{}'",
+        password_md5, admin, username
     );
     conn.query_drop(query).unwrap();
     drop(conn);
