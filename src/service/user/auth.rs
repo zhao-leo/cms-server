@@ -1,7 +1,7 @@
 use axum::Json;
-use jsonwebtoken::{encode, EncodingKey, Header};
+use chrono::{Duration, Utc};
+use jsonwebtoken::{encode, DecodingKey, EncodingKey, Header, Validation};
 use md5;
-use chrono::{Utc, Duration};
 
 use super::*;
 use crate::service::Service;
@@ -24,11 +24,11 @@ pub async fn login_handler(
 
     // check user
     let pwd_md5 = format!("{:x}", md5::compute(payload.password));
-    if let (false, msg) = service
+    let (correct, msg, admin) = service
         .database
         .check_user(&payload.username, &pwd_md5)
-        .await
-    {
+        .await;
+    if !correct {
         return Json(TokenResponse {
             token: None,
             message: msg,
@@ -38,14 +38,15 @@ pub async fn login_handler(
     // get token
     // create expiring time
     let expiration = Utc::now()
-    .checked_add_signed(Duration::days(3))
-    .expect("valid timestamp")
-    .timestamp() as usize;
+        .checked_add_signed(Duration::days(3))
+        .expect("valid timestamp")
+        .timestamp() as usize;
     // create Claims
     let claims = Claims {
         sub: payload.username.clone(),
         company: "www.example.com".to_string(),
         exp: expiration,
+        admin,
     };
     // generate token
     let token = encode(
@@ -54,10 +55,28 @@ pub async fn login_handler(
         &EncodingKey::from_secret(service.jwt_secret_key.as_ref()),
     )
     .expect("Token creation failed");
-    println!("jwt_secret_key: {}", service.jwt_secret_key);
+    // println!("jwt_secret_key: {}", service.jwt_secret_key);
     // return token
     Json(TokenResponse {
         token: Some(token),
         message: "Login successful".to_string(),
     })
+}
+
+pub async fn auth_check(service: &Service, token: &str) -> (bool, bool, String) {
+    //! Check the token and return the result
+    //! Return (valid, admin, message)
+    let token = match jsonwebtoken::decode::<Claims>(
+        &token,
+        &DecodingKey::from_secret(service.jwt_secret_key.as_ref()),
+        &Validation::default(),
+    ) {
+        Ok(token) => token,
+        Err(_) => return (false, false, "Invalid token".to_string()),
+    };
+    let now = Utc::now().timestamp() as usize;
+    if token.claims.exp < now {
+        return (false, false, "Token expired".to_string());
+    }
+    (true, token.claims.admin, "Token valid".to_string())
 }

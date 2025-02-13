@@ -20,7 +20,11 @@ pub async fn create_user(
     Ok(())
 }
 
-pub async fn check_user(database: &Database, username: &str, password_md5: &str) -> (bool, String) {
+pub async fn check_user(
+    database: &Database,
+    username: &str,
+    password_md5: &str,
+) -> (bool, String, bool) {
     let mut conn = database.pool.get_conn().unwrap();
 
     let query = format!(
@@ -35,16 +39,16 @@ pub async fn check_user(database: &Database, username: &str, password_md5: &str)
     ) {
         Ok(result) => {
             if result.len() > 0 {
-                return (true, "User found".to_string());
+                return (true, "User found".to_string(), result[0].3);
             }
         }
         Err(e) => {
-            return (false, e.to_string());
+            return (false, e.to_string(), false);
         }
     }
 
     drop(conn);
-    (false, "Uncorrect username or password".to_string())
+    (false, "Uncorrect username or password".to_string(), false)
 }
 
 pub async fn get_user(
@@ -69,4 +73,21 @@ pub async fn get_user(
             return Err(e);
         }
     }
+}
+
+pub async fn put_user(
+    database: &Database,
+    username: &str,
+    password_md5: &str,
+    admin: bool,
+) -> Result<(), mysql::Error> {
+    //! Create a new user
+    let mut conn = database.pool.get_conn().unwrap();
+    let query = format!(
+        "INSERT INTO users (username, password, admin) VALUES ('{}', '{}', {})",
+        username, password_md5, admin
+    );
+    conn.query_drop(query).unwrap();
+    drop(conn);
+    Ok(())
 }

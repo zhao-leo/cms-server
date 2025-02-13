@@ -36,17 +36,28 @@ impl Database {
         user::create_user(&self, username, password, admin).await
     }
 
-    pub async fn check_user(&self, username: &str, password: &str) -> (bool, String) {
+    pub async fn check_user(&self, username: &str, password: &str) -> (bool, String, bool) {
         //! Check if the user exists
         user::check_user(&self, username, password).await
     }
 
-    pub async fn get_user(
+    #[allow(dead_code)]
+    async fn get_user(
         &self,
         username: &str,
     ) -> Result<Vec<(u32, String, String, bool)>, mysql::Error> {
         //! Get the user
         user::get_user(&self, username).await
+    }
+
+    pub async fn put_user(
+        &self,
+        username: &str,
+        password: &str,
+        admin: bool,
+    ) -> Result<(), mysql::Error> {
+        //! Put the user
+        user::put_user(&self, username, password, admin).await
     }
 }
 
