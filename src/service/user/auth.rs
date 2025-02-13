@@ -63,7 +63,7 @@ pub async fn login_handler(
     })
 }
 
-pub async fn auth_check(service: &Service, token: &str) -> (bool, bool, String) {
+pub async fn auth_check(service: &Service, token: &str) -> (bool, bool, String, String) {
     //! Check the token and return the result
     //! Return (valid, admin, message)
     let token = match jsonwebtoken::decode::<Claims>(
@@ -72,11 +72,16 @@ pub async fn auth_check(service: &Service, token: &str) -> (bool, bool, String) 
         &Validation::default(),
     ) {
         Ok(token) => token,
-        Err(_) => return (false, false, "Invalid token".to_string()),
+        Err(_) => return (false, false, "Invalid token".to_string(), "".to_string()),
     };
     let now = Utc::now().timestamp() as usize;
     if token.claims.exp < now {
-        return (false, false, "Token expired".to_string());
+        return (false, false, "Token expired".to_string(), token.claims.sub);
     }
-    (true, token.claims.admin, "Token valid".to_string())
+    (
+        true,
+        token.claims.admin,
+        "Token valid".to_string(),
+        token.claims.sub,
+    )
 }

@@ -1,4 +1,5 @@
 pub mod auth;
+pub mod modify;
 pub mod register;
 use serde::{Deserialize, Serialize};
 
@@ -33,6 +34,17 @@ pub struct RegisterRequest {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RegisterResponse {
+    result: bool,
+    msg: String,
+}
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MotifyRequest {
+    password: String,
+    md5: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MotifyResponse {
     result: bool,
     msg: String,
 }

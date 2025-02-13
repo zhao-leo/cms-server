@@ -25,7 +25,7 @@ pub async fn register_handler(
 
     // check user
     let pwd_md5 = format!("{:x}", md5::compute(payload.password));
-    let (valid, admin, msg) = service.check_jwt(jwt_token).await;
+    let (valid, admin, msg, _) = service.check_jwt(jwt_token).await;
     if valid && admin {
         match service
             .database
@@ -45,10 +45,12 @@ pub async fn register_handler(
                 });
             }
         }
-    } else {
-        Json(RegisterResponse {
+    } else if valid {
+        return Json(RegisterResponse {
             result: false,
-            msg: msg,
-        })
+            msg: "You are not an admin".to_string(),
+        });
+    } else {
+        Json(RegisterResponse { result: false, msg })
     }
 }

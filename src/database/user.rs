@@ -11,6 +11,22 @@ pub async fn create_user(
 ) -> Result<(), mysql::Error> {
     //! Create a new user
     let mut conn = database.pool.get_conn().unwrap();
+    let chech_result = get_user(database, username).await;
+    match chech_result {
+        Ok(result) => {
+            if result.len() > 0 {
+                return Err(mysql::Error::MySqlError(MySqlError {
+                    state: "23000".to_string(),
+                    message: "Key already exists".to_string(),
+                    code: 1062,
+                }));
+            }
+        }
+        Err(e) => {
+            return Err(e);
+        }
+    }
+    // Insert the new user
     let query = format!(
         "INSERT INTO users (username, password, admin) VALUES ('{}', '{}', {})",
         username, password_md5, admin
@@ -83,6 +99,21 @@ pub async fn put_user(
 ) -> Result<(), mysql::Error> {
     //! Create a new user
     let mut conn = database.pool.get_conn().unwrap();
+    let chech_result = get_user(database, username).await;
+    match chech_result {
+        Ok(result) => {
+            if result.len() == 0 {
+                return Err(mysql::Error::MySqlError(MySqlError {
+                    state: "23000".to_string(),
+                    message: "Key not exists".to_string(),
+                    code: 1062,
+                }));
+            }
+        }
+        Err(e) => {
+            return Err(e);
+        }
+    }
     let query = format!(
         "INSERT INTO users (username, password, admin) VALUES ('{}', '{}', {})",
         username, password_md5, admin

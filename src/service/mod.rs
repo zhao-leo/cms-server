@@ -24,15 +24,15 @@ impl Service {
 }
 
 impl Service {
-    pub async fn login_handler(&self, Json(payload): Json<LoginRequest>) -> Json<TokenResponse> {
-        user::auth::login_handler(&self, Json(payload)).await
-    }
-
-    async fn check_jwt(&self, token: &str) -> (bool, bool, String) {
+    async fn check_jwt(&self, token: &str) -> (bool, bool, String, String) {
         //! Return the validity and the admin status and the message
         //!
         //! Check the jwt token and return the validity and the admin status
         user::auth::auth_check(&self, token).await
+    }
+
+    pub async fn login_handler(&self, Json(payload): Json<LoginRequest>) -> Json<TokenResponse> {
+        user::auth::login_handler(&self, Json(payload)).await
     }
 
     pub async fn register_handler(
@@ -41,5 +41,13 @@ impl Service {
         Json(payload): Json<RegisterRequest>,
     ) -> Json<RegisterResponse> {
         user::register::register_handler(&self, headers, Json(payload)).await
+    }
+
+    pub async fn modify_handler(
+        &self,
+        headers: HeaderMap,
+        Json(payload): Json<MotifyRequest>,
+    ) -> Json<MotifyResponse> {
+        user::modify::modify_handler(&self, headers, Json(payload)).await
     }
 }
