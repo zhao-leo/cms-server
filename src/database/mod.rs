@@ -2,6 +2,8 @@ mod articles;
 mod init;
 mod user;
 
+pub use articles::FindType;
+
 use mysql::Pool;
 #[derive(Clone)]
 pub struct Database {
@@ -41,14 +43,13 @@ impl Database {
         user::check_user(&self, username, password).await
     }
 
-    #[allow(dead_code)]
-    async fn get_user(
-        &self,
-        username: &str,
-    ) -> Result<Vec<(u32, String, String, bool)>, mysql::Error> {
-        //! Get the user
-        user::get_user(&self, username).await
-    }
+    // async fn get_user(
+    //     &self,
+    //     username: &str,
+    // ) -> Result<Vec<(u32, String, String, bool)>, mysql::Error> {
+    //     //! Get the user
+    //     user::get_user(&self, username).await
+    // }
 
     pub async fn put_user(
         &self,
@@ -64,7 +65,7 @@ impl Database {
 impl Database {
     //! Article functions
     pub async fn create_article(
-        database: &Database,
+        &self,
         uuid: &str,
         title: &str,
         source: &str,
@@ -74,28 +75,25 @@ impl Database {
         origin: bool,
     ) -> Result<(), mysql::Error> {
         //! Create a new article
-        articles::create_article(
-            database, uuid, title, source, category, author, tags, origin,
-        )
-        .await
+        articles::create_article(self, uuid, title, source, category, author, tags, origin).await
     }
 
-    pub async fn delete_article(database: &Database, uuid: &str) -> Result<(), mysql::Error> {
+    pub async fn delete_article(&self, uuid: &str) -> Result<(), mysql::Error> {
         //! Delete an article by the given uuid
-        articles::delete_article(database, uuid).await
+        articles::delete_article(self, uuid).await
     }
 
     pub async fn find_article(
-        database: &Database,
+        &self,
         find_type: articles::FindType,
         find: &str,
     ) -> Result<Vec<String>, mysql::Error> {
         //! Find an article by the given type
-        articles::find_article(database, find_type, find).await
+        articles::find_article(self, find_type, find).await
     }
 
     pub async fn put_article(
-        database: &Database,
+        &self,
         uuid: &str,
         title: &str,
         source: &str,
@@ -105,9 +103,6 @@ impl Database {
         origin: bool,
     ) -> Result<(), mysql::Error> {
         //! Put an article by the given uuid
-        articles::put_article(
-            database, uuid, title, source, category, author, tags, origin,
-        )
-        .await
+        articles::put_article(self, uuid, title, source, category, author, tags, origin).await
     }
 }

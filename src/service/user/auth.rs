@@ -65,7 +65,7 @@ pub async fn login_handler(
 
 pub async fn auth_check(service: &Service, token: &str) -> (bool, bool, String, String) {
     //! Check the token and return the result
-    //! Return (valid, admin, message)
+    //! Return (valid, admin, message, username)
     let token = match jsonwebtoken::decode::<Claims>(
         &token,
         &DecodingKey::from_secret(service.jwt_secret_key.as_ref()),

@@ -1,12 +1,14 @@
-use crate::database::Database;
+use crate::{articles::Articles, database::Database};
 
-pub async fn init() -> (Database, String) {
+pub async fn init() -> (Database, String, Articles) {
     // environment variables check
     let db_user = std::env::var("DB_USER").unwrap();
     let db_pass = std::env::var("DB_PASS").unwrap();
     let db_name = std::env::var("DB_NAME").unwrap();
     let db_host = std::env::var("DB_HOST").unwrap();
     let db_port = std::env::var("DB_PORT").unwrap();
+
+    let post_dir = std::env::var("POST_DIR").unwrap();
 
     if let Err(_) = &std::env::var("JWT_SECRET_KEY") {
         println!("JWT_SECRET_KEY not found, using default");
@@ -19,7 +21,7 @@ pub async fn init() -> (Database, String) {
         db_user, db_pass, db_host, db_port, db_name
     );
     let db = Database::new(&db_url);
-
     db.init().await.unwrap();
-    (db, jwt_key)
+    let articles = Articles::new(post_dir);
+    (db, jwt_key, articles)
 }

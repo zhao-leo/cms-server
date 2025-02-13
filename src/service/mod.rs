@@ -1,24 +1,26 @@
+mod article;
 mod init;
 mod user;
 
-use crate::database::Database;
+use crate::{articles::Articles, database::Database};
 use axum::{http::HeaderMap, Json};
 use user::*;
 
-#[allow(dead_code)]
 #[derive(Clone)]
 pub struct Service {
     database: Database,
     jwt_secret_key: String,
+    article_archive: Articles,
 }
 
 impl Service {
     pub async fn init() -> Self {
         //! Initialize the service with the environment variables and return the service object
-        let (database, jwt_secret_key) = init::init().await;
+        let (database, jwt_secret_key, articles) = init::init().await;
         Self {
             database,
             jwt_secret_key,
+            article_archive: articles,
         }
     }
 }
@@ -49,5 +51,51 @@ impl Service {
         Json(payload): Json<MotifyRequest>,
     ) -> Json<MotifyResponse> {
         user::modify::modify_handler(&self, headers, Json(payload)).await
+    }
+}
+
+impl Service {
+    pub async fn create_article_handler(
+        &self,
+        headers: HeaderMap,
+        Json(article): Json<article::CreateArticle>,
+    ) -> Json<article::CreateResponse> {
+        //! Create a new article
+        //!
+        //! Create a new article with the given title, source, category, author, tags, origin and content
+        article::create::create_article_handler(&self, headers, Json(article)).await
+    }
+
+    pub async fn delete_article_handler(
+        &self,
+        headers: HeaderMap,
+        Json(uuid): Json<article::DeleteArticle>,
+    ) -> Json<article::DeleteResponse> {
+        //! Delete an article
+        //!
+        //! Delete an article by the given uuid
+        article::delete::delete_article_handler(&self, headers, Json(uuid)).await
+    }
+
+    pub async fn modify_article_handler(
+        &self,
+        headers: HeaderMap,
+        Json(article): Json<article::ModifyArticle>,
+    ) -> Json<article::ModifyResponse> {
+        //! Modify an article
+        //!
+        //! Modify an article by the given uuid title, source, category, author, tags, origin and content
+        article::modify::modify_article_handler(&self, headers, Json(article)).await
+    }
+
+    pub async fn search_article_handler(
+        &self,
+        headers: HeaderMap,
+        Json(search): Json<serde_json::Value>,
+    ) -> Json<article::SearchResponse> {
+        //! Search for an article
+        //!
+        //! Search for an article by the given search
+        article::search::search_article_handler(&self, headers, Json(search)).await
     }
 }
